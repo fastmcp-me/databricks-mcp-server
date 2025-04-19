@@ -1,6 +1,0 @@
-{
-  "base_url": "https://your-databricks-instance.cloud.databricks.com",
-  "token": "your-databricks-token",
-  "poll_interval": 60,
-  "server_port": 8080
-}
