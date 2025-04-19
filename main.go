@@ -24,7 +24,7 @@ func main() {
 	// Create an MCP server
 	s := server.NewMCPServer(
 		"Databricks MCP Server 🚀",
-		"1.1.0",
+		Version,
 	)
 
 	// Add tool handlers for Databricks operations
