@@ -3,7 +3,7 @@ package main
 // Version information
 var (
 	// Version is the current version of the application
-	Version = "1.1.1"
+	Version = "1.1.2"
 
 	// BuildDate is the date when the binary was built
 	BuildDate = "unknown"
