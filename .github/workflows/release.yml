@@ -93,16 +93,55 @@ jobs:
 
       - name: Create Release
         id: create_release
-        uses: softprops/action-gh-release@v1
+        uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          files: |
-            artifacts/databricks-mcp-linux-amd64/DatabricksMCP
-            artifacts/databricks-mcp-windows-amd64.exe/DatabricksMCP.exe
-            artifacts/databricks-mcp-darwin-amd64/DatabricksMCP
-            artifacts/databricks-mcp-darwin-arm64/DatabricksMCP
-          name: Release ${{ github.ref_name }}
+          tag_name: ${{ github.ref_name }}
+          release_name: Release ${{ github.ref_name }}
+          body: |
+            Release ${{ github.ref_name }} of DatabricksMCP
+
+            See the commits for this release for more details.
           draft: false
           prerelease: false
-          generate_release_notes: true
+
+      - name: Upload Linux AMD64 Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: artifacts/databricks-mcp-linux-amd64/DatabricksMCP
+          asset_name: databricks-mcp-linux-amd64
+          asset_content_type: application/octet-stream
+
+      - name: Upload Windows AMD64 Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: artifacts/databricks-mcp-windows-amd64.exe/DatabricksMCP.exe
+          asset_name: databricks-mcp-windows-amd64.exe
+          asset_content_type: application/octet-stream
+
+      - name: Upload Darwin AMD64 Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: artifacts/databricks-mcp-darwin-amd64/DatabricksMCP
+          asset_name: databricks-mcp-darwin-amd64
+          asset_content_type: application/octet-stream
+
+      - name: Upload Darwin ARM64 Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: artifacts/databricks-mcp-darwin-arm64/DatabricksMCP
+          asset_name: databricks-mcp-darwin-arm64
+          asset_content_type: application/octet-stream
