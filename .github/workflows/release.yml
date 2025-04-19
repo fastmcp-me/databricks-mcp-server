@@ -69,7 +69,18 @@ jobs:
         GOOS: ${{ matrix.GOOS }}
         GOARCH: ${{ matrix.GOARCH }}
       run: |
-        go build -ldflags "-X 'main.Version=${{ env.VERSION }}' -X 'main.BuildDate=$(date -u +%Y-%m-%dT%H:%M:%SZ)' -X 'main.GitCommit=$(git rev-parse --short HEAD)'" -o ${{ matrix.binary_name }}
+        go build -trimpath -ldflags="-s -w -X 'main.Version=${{ env.VERSION }}' -X 'main.BuildDate=$(date -u +%Y-%m-%dT%H:%M:%SZ)' -X 'main.GitCommit=$(git rev-parse --short HEAD)'" -o ${{ matrix.binary_name }}
+
+    - name: Install UPX
+      if: matrix.GOOS != 'darwin'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y upx-ucl
+
+    - name: Compress binary with UPX
+      if: matrix.GOOS != 'darwin'
+      run: |
+        upx --best --lzma ${{ matrix.binary_name }}
 
     - name: Upload artifact
       uses: actions/upload-artifact@v4
