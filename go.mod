@@ -2,13 +2,15 @@ module DatabricksMCP
 
 go 1.24.2
 
-require github.com/mark3labs/mcp-go v0.22.0
+require (
+	github.com/databricks/databricks-sdk-go v0.63.0
+	github.com/mark3labs/mcp-go v0.22.0
+)
 
 require (
 	cloud.google.com/go/auth v0.4.2 // indirect
 	cloud.google.com/go/auth/oauth2adapt v0.2.2 // indirect
 	cloud.google.com/go/compute/metadata v0.3.0 // indirect
-	github.com/databricks/databricks-sdk-go v0.63.0 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/go-logr/logr v1.4.1 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect

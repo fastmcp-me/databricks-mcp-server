@@ -2,16 +2,22 @@ package main
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/databricks/databricks-sdk-go"
 	"github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
 )
 
+// w is the Databricks workspace client used for all API operations
 var w *databricks.WorkspaceClient
 
 func init() {
-	w = databricks.Must(databricks.NewWorkspaceClient())
+	var err error
+	w, err = databricks.NewWorkspaceClient()
+	if err != nil {
+		log.Fatalf("Failed to initialize Databricks client: %v", err)
+	}
 }
 
 func main() {
@@ -21,7 +27,7 @@ func main() {
 		"1.1.0",
 	)
 
-	// Add tool handler
+	// Add tool handlers for Databricks operations
 	s.AddTool(mcp.NewTool("list_catalogs",
 		mcp.WithDescription("List all catalogs in the databricks workspace"),
 	), listAllCatalogs)
@@ -37,11 +43,13 @@ func main() {
 		mcp.WithString("schema", mcp.Description("Schema name"), mcp.Required()),
 		mcp.WithString("filter_pattern", mcp.Description("Pattern to filter tables, expect a valid regex"), mcp.DefaultString(".*")),
 	), listAllTables)
+
 	s.AddTool(mcp.NewTool("execute_sql_statement",
 		mcp.WithDescription("Execute SQL statement"),
 		mcp.WithString("statement", mcp.Description("SQL statement to execute"), mcp.Required()),
 		mcp.WithNumber("timeout_seconds", mcp.Description("Timeout in seconds"), mcp.DefaultNumber(60)),
 	), executeSQL)
+
 	// Start the stdio server
 	if err := server.ServeStdio(s); err != nil {
 		fmt.Printf("Server error: %v\n", err)
