@@ -4,10 +4,53 @@ A Model Control Protocol (MCP) server for interacting with Databricks.
 
 ## Features
 
-- List catalogs in a Databricks workspace
-- List schemas in a catalog
-- List tables in a schema
-- Execute SQL statements
+The Databricks MCP Server provides a Model Control Protocol (MCP) interface to interact with Databricks workspaces. It offers the following functionalities:
+
+### List Catalogs
+
+Lists all catalogs available in the Databricks workspace.
+
+**Tool name:** `list_catalogs`
+
+**Parameters:** None
+
+**Returns:** JSON array of catalog objects
+
+### List Schemas
+
+Lists all schemas in a specified catalog.
+
+**Tool name:** `list_schemas`
+
+**Parameters:**
+- `catalog` (string, required): The name of the catalog to list schemas from
+
+**Returns:** JSON array of schema objects
+
+### List Tables
+
+Lists all tables in a specified schema, with optional filtering by name pattern.
+
+**Tool name:** `list_tables`
+
+**Parameters:**
+- `catalog` (string, required): The name of the catalog
+- `schema` (string, required): The name of the schema
+- `filter_pattern` (string, optional, default: ".*"): Regular expression pattern to filter table names
+
+**Returns:** JSON array of table objects
+
+### Execute SQL Statements
+
+Executes SQL statements on a Databricks warehouse and returns the results.
+
+**Tool name:** `execute_sql_statement`
+
+**Parameters:**
+- `statement` (string, required): The SQL statement to execute
+- `timeout_seconds` (number, optional, default: 60): Timeout in seconds for the statement execution
+
+**Returns:** JSON object containing columns and rows from the query result
 
 ## Installation
 
@@ -22,49 +65,62 @@ You can download the latest release for your platform from the [Releases](https:
 
 ## Usage
 
-The application requires Databricks authentication credentials to be set up. You can configure these using environment variables:
+### Authentication
 
-```bash
-export DATABRICKS_HOST=https://your-workspace.cloud.databricks.com
-export DATABRICKS_TOKEN=your-personal-access-token
-```
+The application uses Databricks unified authentication. For details on how to configure authentication, please refer to the [Databricks Authentication documentation](https://docs.databricks.com/en/dev-tools/auth.html).
 
-Then run the application:
+### Running the Server
+
+Start the MCP server:
 
 ```bash
 ./DatabricksMCP
 ```
+
+The server will start and listen for MCP protocol commands on standard input/output.
 
 ## Development
 
 ### Prerequisites
 
 - Go 1.24 or later
+- Databricks account for testing
 
 ### Building from Source
 
+Clone the repository and build the application:
+
 ```bash
+git clone https://github.com/yourusername/DatabricksMCP.git
+cd DatabricksMCP
 go build
 ```
 
-### Versioning
+### Project Structure
 
-This project uses semantic versioning. The version is defined in `version.go` and is automatically updated during the build process based on git tags.
+- `main.go`: Entry point of the application, sets up the MCP server and registers tools
+- `tools.go`: Implementation of the Databricks tools (list_catalogs, list_schemas, list_tables, execute_sql_statement)
+- `version.go`: Version information for the application
+- `.github/workflows/release.yml`: GitHub Actions workflow for building and releasing the application
 
-To create a new release:
+### Running Tests
 
-1. Update the version in `version.go`
-2. Commit your changes
-3. Create a new tag with the version number:
-   ```bash
-   git tag v1.2.0
-   ```
-4. Push the tag to GitHub:
-   ```bash
-   git push origin v1.2.0
-   ```
+To run the tests:
 
-This will trigger the GitHub Actions workflow to build the binaries for all platforms and create a new release.
+```bash
+go test ./...
+```
+
+### Contributing
+
+Contributions are welcome! Here's how you can contribute:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
 
 ## CI/CD Pipeline
 
