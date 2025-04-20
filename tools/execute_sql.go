@@ -16,7 +16,7 @@ import (
 // It handles statement execution, polling for completion, and fetching result chunks.
 func ExecuteSQL(w *databricks.WorkspaceClient) server.ToolHandlerFunc {
 	return func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-		server := server.ServerFromContext(ctx)
+		mcpServer := server.ServerFromContext(ctx)
 		arguments := request.Params.Arguments
 		statement := arguments["statement"].(string)
 		timeoutSeconds, ok := arguments["max_wait_timeout"].(float64)
@@ -67,7 +67,7 @@ func ExecuteSQL(w *databricks.WorkspaceClient) server.ToolHandlerFunc {
 				token = request.Params.Meta.ProgressToken
 			}
 
-			err = server.SendNotificationToClient(ctx, "notifications/progress", map[string]interface{}{
+			err = mcpServer.SendNotificationToClient(ctx, "notifications/progress", map[string]interface{}{
 				"message":       fmt.Sprintf("Statement execution in progress (%d seconds), current status: %s", attempts*10, res.Status.State),
 				"progressToken": token,
 				"progress":      attempts,
@@ -100,7 +100,7 @@ func ExecuteSQL(w *databricks.WorkspaceClient) server.ToolHandlerFunc {
 				StatementId: res.StatementId,
 			})
 			return mcp.NewToolResultError(
-				fmt.Sprintf("Error executing the statement, current status %s", res.Status.State)), nil
+				fmt.Sprintf("Error executing the statement, current status %s, canceled execution", res.Status.State)), nil
 		}
 
 		// Collect all result chunks
