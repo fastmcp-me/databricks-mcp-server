@@ -59,7 +59,15 @@ jobs:
         if [[ $GITHUB_REF == refs/tags/v* ]]; then
           VERSION=${GITHUB_REF#refs/tags/v}
         else
-          VERSION=$(git describe --tags --abbrev=0 2>/dev/null || echo "0.0.0")-dev-$(git rev-parse --short HEAD)
+          # For non-tag builds, try to get the latest tag or use version from version.go if no tags exist
+          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          if [ -z "$LATEST_TAG" ]; then
+            # Extract version from version.go if no tags exist
+            VERSION=$(grep -oP 'Version = "\K[^"]+' version.go || echo "0.0.0")
+            VERSION="$VERSION-dev-$(git rev-parse --short HEAD)"
+          else
+            VERSION="${LATEST_TAG#v}-dev-$(git rev-parse --short HEAD)"
+          fi
         fi
         echo "VERSION=$VERSION" >> $GITHUB_ENV
         echo "version=$VERSION" >> $GITHUB_OUTPUT
@@ -106,17 +114,33 @@ jobs:
           CURRENT_TAG=${GITHUB_REF#refs/tags/}
           echo "Current tag: $CURRENT_TAG"
 
-          # Get the previous tag
-          PREVIOUS_TAG=$(git describe --tags --abbrev=0 $CURRENT_TAG^ 2>/dev/null || echo "")
+          # Check if this is the first tag
+          TAG_COUNT=$(git tag | wc -l)
 
-          if [ -z "$PREVIOUS_TAG" ]; then
-            # If there's no previous tag, get all commits
-            echo "No previous tag found. Using all commits."
+          if [ "$TAG_COUNT" -le 1 ]; then
+            # This is the first tag or there's only one tag (the current one)
+            echo "This is the first release. Including all commits."
+            # Get all commits up to the current tag
             CHANGELOG=$(git log --pretty=format:"* %s (%h)" $CURRENT_TAG)
+
+            # If the changelog is empty (can happen with the first tag), get all commits
+            if [ -z "$CHANGELOG" ]; then
+              echo "Getting all commits for the first release."
+              CHANGELOG=$(git log --pretty=format:"* %s (%h)")
+            fi
           else
-            echo "Previous tag: $PREVIOUS_TAG"
-            # Get commits between the previous tag and the current tag
-            CHANGELOG=$(git log --pretty=format:"* %s (%h)" $PREVIOUS_TAG..$CURRENT_TAG)
+            # Try to get the previous tag
+            PREVIOUS_TAG=$(git describe --tags --abbrev=0 $CURRENT_TAG^ 2>/dev/null || echo "")
+
+            if [ -z "$PREVIOUS_TAG" ]; then
+              # If we can't get the previous tag, get all commits up to the current tag
+              echo "No previous tag found. Using all commits up to $CURRENT_TAG."
+              CHANGELOG=$(git log --pretty=format:"* %s (%h)" $CURRENT_TAG)
+            else
+              echo "Previous tag: $PREVIOUS_TAG"
+              # Get commits between the previous tag and the current tag
+              CHANGELOG=$(git log --pretty=format:"* %s (%h)" $PREVIOUS_TAG..$CURRENT_TAG)
+            fi
           fi
 
           # Save changelog to output
