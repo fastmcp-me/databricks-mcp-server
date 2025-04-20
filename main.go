@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	"DatabricksMCP/tools"
+	"databricks-mcp/tools"
 	"github.com/databricks/databricks-sdk-go"
 	"github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"

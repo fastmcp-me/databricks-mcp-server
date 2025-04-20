@@ -1,4 +1,4 @@
-module DatabricksMCP
+module databricks-mcp
 
 go 1.24.2
 

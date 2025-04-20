@@ -55,7 +55,7 @@ Executes SQL statements on a Databricks warehouse and returns the results.
 
 ## Installation
 
-You can download the latest release for your platform from the [Releases](https://github.com/yourusername/DatabricksMCP/releases) page.
+You can download the latest release for your platform from the [Releases](https://github.com/yourusername/databricks-mcp/releases) page.
 
 ### Supported Platforms
 
@@ -75,7 +75,7 @@ The application uses Databricks unified authentication. For details on how to co
 Start the MCP server:
 
 ```bash
-./DatabricksMCP
+./databricks-mcp
 ```
 
 The server will start and listen for MCP protocol commands on standard input/output.
