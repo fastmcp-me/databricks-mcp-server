@@ -24,7 +24,7 @@ func init() {
 func main() {
 	// Create an MCP server
 	s := server.NewMCPServer(
-		"Databricks MCP Server 🚀",
+		"Databricks MCP Server",
 		Version,
 	)
 

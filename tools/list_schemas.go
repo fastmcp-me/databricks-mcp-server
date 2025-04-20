@@ -11,7 +11,7 @@ import (
 
 // ListSchemas retrieves all schemas in the specified catalog
 // and returns them as a JSON string.
-func ListSchemas(w *databricks.WorkspaceClient) func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+func ListSchemas(w *databricks.WorkspaceClient) ToolHandlerFunc {
 	return func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 		arguments := request.Params.Arguments
 		catalogName := arguments["catalog"].(string)

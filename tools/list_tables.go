@@ -28,7 +28,7 @@ func filterTables(tables []catalog.TableInfo, pattern string) ([]catalog.TableIn
 
 // ListTables retrieves all tables in the specified catalog and schema,
 // optionally filtering them by a regex pattern, and returns them as a JSON string.
-func ListTables(w *databricks.WorkspaceClient) func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+func ListTables(w *databricks.WorkspaceClient) ToolHandlerFunc {
 	return func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 		arguments := request.Params.Arguments
 		catalogName := arguments["catalog"].(string)

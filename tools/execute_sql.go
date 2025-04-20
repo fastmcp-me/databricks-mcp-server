@@ -19,13 +19,13 @@ func isStatementInProgress(state sql.StatementState) bool {
 
 // ExecuteSQL executes a SQL statement on a Databricks warehouse and returns the results.
 // It handles statement execution, polling for completion, and fetching result chunks.
-func ExecuteSQL(w *databricks.WorkspaceClient) func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+func ExecuteSQL(w *databricks.WorkspaceClient) ToolHandlerFunc {
 	return func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 		server := server.ServerFromContext(ctx)
 		arguments := request.Params.Arguments
 		statement := arguments["statement"].(string)
 		timeoutSeconds, _ := arguments["timeout_seconds"].(float64)
-		
+
 		// Get the row limit parameter, default to 100 if not provided
 		rowLimit, ok := arguments["row_limit"].(float64)
 		if !ok {
