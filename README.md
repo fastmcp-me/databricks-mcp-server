@@ -49,6 +49,7 @@ Executes SQL statements on a Databricks warehouse and returns the results.
 **Parameters:**
 - `statement` (string, required): The SQL statement to execute
 - `timeout_seconds` (number, optional, default: 60): Timeout in seconds for the statement execution
+- `row_limit` (number, optional, default: 100): Maximum number of rows to return in the result
 
 **Returns:** JSON object containing columns and rows from the query result
 
