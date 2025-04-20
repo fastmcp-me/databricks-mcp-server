@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"os"
 
 	"databricks-mcp/tools"
 	"github.com/databricks/databricks-sdk-go"
@@ -26,6 +27,7 @@ func main() {
 	s := server.NewMCPServer(
 		"Databricks MCP Server",
 		Version,
+		server.WithLogging(),
 	)
 
 	// Add tool handlers for Databricks operations
@@ -48,12 +50,13 @@ func main() {
 	s.AddTool(mcp.NewTool("execute_sql",
 		mcp.WithDescription("Executes SQL statements on a Databricks warehouse and returns the results"),
 		mcp.WithString("statement", mcp.Description("SQL statement to execute"), mcp.Required()),
-		mcp.WithNumber("timeout_seconds", mcp.Description("Timeout in seconds for the statement execution"), mcp.DefaultNumber(60)),
+		mcp.WithNumber("max_wait_timeout", mcp.Description("Timeout in seconds for the statement execution"), mcp.DefaultNumber(60)),
 		mcp.WithNumber("row_limit", mcp.Description("Maximum number of rows to return in the result"), mcp.DefaultNumber(100)),
 	), tools.ExecuteSQL(w))
 
 	// Start the stdio server
-	if err := server.ServeStdio(s); err != nil {
+	logger := log.New(os.Stdout, "INFO: ", log.LstdFlags)
+	if err := server.ServeStdio(s, server.WithErrorLogger(logger)); err != nil {
 		fmt.Printf("Server error: %v\n", err)
 	}
 }

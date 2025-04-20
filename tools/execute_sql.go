@@ -12,11 +12,6 @@ import (
 	"github.com/mark3labs/mcp-go/server"
 )
 
-// isStatementInProgress returns true if the statement is still running
-func isStatementInProgress(state sql.StatementState) bool {
-	return state == sql.StatementStatePending
-}
-
 // ExecuteSQL executes a SQL statement on a Databricks warehouse and returns the results.
 // It handles statement execution, polling for completion, and fetching result chunks.
 func ExecuteSQL(w *databricks.WorkspaceClient) server.ToolHandlerFunc {
@@ -24,7 +19,10 @@ func ExecuteSQL(w *databricks.WorkspaceClient) server.ToolHandlerFunc {
 		server := server.ServerFromContext(ctx)
 		arguments := request.Params.Arguments
 		statement := arguments["statement"].(string)
-		timeoutSeconds, _ := arguments["timeout_seconds"].(float64)
+		timeoutSeconds, ok := arguments["max_wait_timeout"].(float64)
+		if !ok {
+			timeoutSeconds = 60
+		}
 
 		// Get the row limit parameter, default to 100 if not provided
 		rowLimit, ok := arguments["row_limit"].(float64)
@@ -32,8 +30,14 @@ func ExecuteSQL(w *databricks.WorkspaceClient) server.ToolHandlerFunc {
 			rowLimit = 100
 		}
 
+		// Poll every 10 seconds
+		if timeoutSeconds < 5 {
+			timeoutSeconds = 0
+		}
 		// Convert timeout to string format for API and calculate a polling interval
-		pollingInterval := time.Duration(timeoutSeconds/4) * time.Second
+		pollingInterval := 10 * time.Second
+		// Poll for statement completion
+		maxAttempts := int(timeoutSeconds / 10)
 
 		// Get available warehouses
 		warehouses, err := w.Warehouses.ListAll(ctx, sql.ListWarehousesRequest{})
@@ -48,22 +52,26 @@ func ExecuteSQL(w *databricks.WorkspaceClient) server.ToolHandlerFunc {
 		res, err := w.StatementExecution.ExecuteStatement(ctx, sql.ExecuteStatementRequest{
 			RowLimit:    int64(rowLimit),
 			Statement:   statement,
-			WaitTimeout: "10s",
+			WaitTimeout: "5s",
 			WarehouseId: warehouses[0].Id,
 		})
 		if err != nil {
 			return mcp.NewToolResultErrorFromErr("Error executing SQL statement", err), nil
 		}
 
-		// Poll for statement completion
-		maxAttempts := 5 // Increased from 2 to give more time for completion
 		attempts := 0
 
-		for attempts < maxAttempts && isStatementInProgress(res.Status.State) {
-			// Send progress notification to client
+		for attempts < maxAttempts && res.Status.State != sql.StatementStateSucceeded && res.Status.Error == nil {
+			var token interface{} = 0
+			if request.Params.Meta != nil {
+				token = request.Params.Meta.ProgressToken
+			}
+
 			err = server.SendNotificationToClient(ctx, "notifications/progress", map[string]interface{}{
-				"message":       "The statement is still running, please wait...",
-				"progressToken": request.Params.Meta.ProgressToken,
+				"message":       fmt.Sprintf("Statement execution in progress (%d seconds), current status: %s", attempts*10, res.Status.State),
+				"progressToken": token,
+				"progress":      attempts,
+				"total":         maxAttempts,
 			})
 			if err != nil {
 				return nil, err
@@ -88,6 +96,9 @@ func ExecuteSQL(w *databricks.WorkspaceClient) server.ToolHandlerFunc {
 		}
 
 		if res.Status.State != sql.StatementStateSucceeded {
+			_ = w.StatementExecution.CancelExecution(ctx, sql.CancelExecutionRequest{
+				StatementId: res.StatementId,
+			})
 			return mcp.NewToolResultError(
 				fmt.Sprintf("Error executing the statement, current status %s", res.Status.State)), nil
 		}
@@ -113,6 +124,9 @@ func ExecuteSQL(w *databricks.WorkspaceClient) server.ToolHandlerFunc {
 		response, err := json.Marshal(map[string]interface{}{
 			"columns": res.Manifest.Schema.Columns,
 			"rows":    resultDataArray,
+			"metadata": map[string]interface{}{
+				"warehouse": warehouses[0],
+			},
 		})
 		if err != nil {
 			return mcp.NewToolResultErrorFromErr("Error marshalling statement result into JSON", err), nil
