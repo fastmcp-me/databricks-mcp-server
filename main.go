@@ -30,26 +30,26 @@ func main() {
 
 	// Add tool handlers for Databricks operations
 	s.AddTool(mcp.NewTool("list_catalogs",
-		mcp.WithDescription("List all catalogs in the databricks workspace"),
-	), tools.ListAllCatalogs(w))
+		mcp.WithDescription("Lists all catalogs available in the Databricks workspace"),
+	), tools.ListCatalogs(w))
 
 	s.AddTool(mcp.NewTool("list_schemas",
-		mcp.WithDescription("List all schemas in a catalog"),
-		mcp.WithString("catalog", mcp.Description("Catalog name"), mcp.Required()),
-	), tools.ListAllSchemas(w))
+		mcp.WithDescription("Lists all schemas in a specified Databricks catalog"),
+		mcp.WithString("catalog", mcp.Description("Name of the catalog to list schemas from"), mcp.Required()),
+	), tools.ListSchemas(w))
 
 	s.AddTool(mcp.NewTool("list_tables",
-		mcp.WithDescription("List all tables in a schema"),
-		mcp.WithString("catalog", mcp.Description("Catalog name"), mcp.Required()),
-		mcp.WithString("schema", mcp.Description("Schema name"), mcp.Required()),
-		mcp.WithString("filter_pattern", mcp.Description("Pattern to filter tables, expect a valid regex"), mcp.DefaultString(".*")),
-	), tools.ListAllTables(w))
+		mcp.WithDescription("Lists all tables in a specified Databricks schema with optional filtering"),
+		mcp.WithString("catalog", mcp.Description("Name of the catalog containing the schema"), mcp.Required()),
+		mcp.WithString("schema", mcp.Description("Name of the schema to list tables from"), mcp.Required()),
+		mcp.WithString("filter_pattern", mcp.Description("Regular expression pattern to filter table names"), mcp.DefaultString(".*")),
+	), tools.ListTables(w))
 
-	s.AddTool(mcp.NewTool("execute_sql_statement",
-		mcp.WithDescription("Execute SQL statement"),
+	s.AddTool(mcp.NewTool("execute_sql",
+		mcp.WithDescription("Executes SQL statements on a Databricks warehouse and returns the results"),
 		mcp.WithString("statement", mcp.Description("SQL statement to execute"), mcp.Required()),
-		mcp.WithNumber("timeout_seconds", mcp.Description("Timeout in seconds"), mcp.DefaultNumber(60)),
-		mcp.WithNumber("row_limit", mcp.Description("Maximum number of rows to return"), mcp.DefaultNumber(100)),
+		mcp.WithNumber("timeout_seconds", mcp.Description("Timeout in seconds for the statement execution"), mcp.DefaultNumber(60)),
+		mcp.WithNumber("row_limit", mcp.Description("Maximum number of rows to return in the result"), mcp.DefaultNumber(100)),
 	), tools.ExecuteSQL(w))
 
 	// Start the stdio server

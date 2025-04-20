@@ -18,36 +18,36 @@ Lists all catalogs available in the Databricks workspace.
 
 ### List Schemas
 
-Lists all schemas in a specified catalog.
+Lists all schemas in a specified Databricks catalog.
 
 **Tool name:** `list_schemas`
 
 **Parameters:**
-- `catalog` (string, required): The name of the catalog to list schemas from
+- `catalog` (string, required): Name of the catalog to list schemas from
 
 **Returns:** JSON array of schema objects
 
 ### List Tables
 
-Lists all tables in a specified schema, with optional filtering by name pattern.
+Lists all tables in a specified Databricks schema with optional filtering.
 
 **Tool name:** `list_tables`
 
 **Parameters:**
-- `catalog` (string, required): The name of the catalog
-- `schema` (string, required): The name of the schema
+- `catalog` (string, required): Name of the catalog containing the schema
+- `schema` (string, required): Name of the schema to list tables from
 - `filter_pattern` (string, optional, default: ".*"): Regular expression pattern to filter table names
 
 **Returns:** JSON array of table objects
 
-### Execute SQL Statements
+### Execute SQL
 
 Executes SQL statements on a Databricks warehouse and returns the results.
 
-**Tool name:** `execute_sql_statement`
+**Tool name:** `execute_sql`
 
 **Parameters:**
-- `statement` (string, required): The SQL statement to execute
+- `statement` (string, required): SQL statement to execute
 - `timeout_seconds` (number, optional, default: 60): Timeout in seconds for the statement execution
 - `row_limit` (number, optional, default: 100): Maximum number of rows to return in the result
 

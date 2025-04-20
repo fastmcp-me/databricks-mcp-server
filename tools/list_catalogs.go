@@ -9,9 +9,9 @@ import (
 	"github.com/mark3labs/mcp-go/mcp"
 )
 
-// ListAllCatalogs retrieves all catalogs from the Databricks workspace
+// ListCatalogs retrieves all catalogs from the Databricks workspace
 // and returns them as a JSON string.
-func ListAllCatalogs(w *databricks.WorkspaceClient) func(ctx context.Context, _ mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+func ListCatalogs(w *databricks.WorkspaceClient) func(ctx context.Context, _ mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 	return func(ctx context.Context, _ mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 		c, err := w.Catalogs.ListAll(ctx, catalog.ListCatalogsRequest{})
 		if err != nil {

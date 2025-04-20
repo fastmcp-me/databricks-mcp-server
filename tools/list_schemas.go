@@ -9,9 +9,9 @@ import (
 	"github.com/mark3labs/mcp-go/mcp"
 )
 
-// ListAllSchemas retrieves all schemas in the specified catalog
+// ListSchemas retrieves all schemas in the specified catalog
 // and returns them as a JSON string.
-func ListAllSchemas(w *databricks.WorkspaceClient) func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+func ListSchemas(w *databricks.WorkspaceClient) func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 	return func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 		arguments := request.Params.Arguments
 		catalogName := arguments["catalog"].(string)
