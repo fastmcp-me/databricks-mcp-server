@@ -1,10 +1,10 @@
 # Databricks MCP Server
 
-A Model Control Protocol (MCP) server for interacting with Databricks.
+A Model Context Protocol (MCP) server for interacting with Databricks.
 
 ## Features
 
-The Databricks MCP Server provides a Model Control Protocol (MCP) interface to interact with Databricks workspaces. It offers the following functionalities:
+The Databricks MCP Server provides a Model Context Protocol (MCP) interface to interact with Databricks workspaces. It offers the following functionalities:
 
 ### List Catalogs
 
