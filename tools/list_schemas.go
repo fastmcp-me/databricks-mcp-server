@@ -3,6 +3,7 @@ package tools
 import (
 	"context"
 	"encoding/json"
+	"github.com/mark3labs/mcp-go/server"
 
 	"github.com/databricks/databricks-sdk-go"
 	"github.com/databricks/databricks-sdk-go/service/catalog"
@@ -11,7 +12,7 @@ import (
 
 // ListSchemas retrieves all schemas in the specified catalog
 // and returns them as a JSON string.
-func ListSchemas(w *databricks.WorkspaceClient) ToolHandlerFunc {
+func ListSchemas(w *databricks.WorkspaceClient) server.ToolHandlerFunc {
 	return func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 		arguments := request.Params.Arguments
 		catalogName := arguments["catalog"].(string)

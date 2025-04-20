@@ -3,6 +3,7 @@ package tools
 import (
 	"context"
 	"encoding/json"
+	"github.com/mark3labs/mcp-go/server"
 
 	"github.com/databricks/databricks-sdk-go"
 	"github.com/databricks/databricks-sdk-go/service/catalog"
@@ -11,7 +12,7 @@ import (
 
 // ListCatalogs retrieves all catalogs from the Databricks workspace
 // and returns them as a JSON string.
-func ListCatalogs(w *databricks.WorkspaceClient) ToolHandlerFunc {
+func ListCatalogs(w *databricks.WorkspaceClient) server.ToolHandlerFunc {
 	return func(ctx context.Context, _ mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 		c, err := w.Catalogs.ListAll(ctx, catalog.ListCatalogsRequest{})
 		if err != nil {

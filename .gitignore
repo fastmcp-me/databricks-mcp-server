@@ -4,7 +4,7 @@
 *.dll
 *.so
 *.dylib
-DatabricksMCP
+databricks-mcp
 
 # Test binary, built with `go test -c`
 *.test
