@@ -2,7 +2,26 @@
 
 A Model Context Protocol (MCP) server for interacting with Databricks.
 
-## Features
+## Installation
+
+You can download the latest release for your platform from the [Releases](https://github.com/yourusername/databricks-mcp-server/releases) page.
+
+### VS Code
+
+Install the Databricks MCP server extension in VS Code Insiders by pressing the following link:
+
+[<img src="https://img.shields.io/badge/VS_Code-VS_Code?style=flat-square&label=Install%20Server&color=0098FF" alt="Install in VS Code">](https://vscode.dev/redirect?url=vscode%3Amcp%2Finstall%3F%257B%2522name%2522%253A%2522databricks%2522%252C%2522command%2522%253A%2522npx%2522%252C%2522args%2522%253A%255B%2522-y%2522%252C%2522databricks-mcp-server%2540latest%2522%255D%257D)
+
+Alternatively, you can install the extension manually by running the following command:
+
+```shell
+# For VS Code
+code --add-mcp '{"name":"databricks","command":"npx","args":["databricks-mcp-server@latest"]}'
+# For VS Code Insiders
+code-insiders --add-mcp '{"name":"databricks","command":"npx","args":["databricks-mcp-server@latest"]}'
+```
+
+## Tools
 
 The Databricks MCP Server provides a Model Context Protocol (MCP) interface to interact with Databricks workspaces. It offers the following functionalities:
 
@@ -53,11 +72,7 @@ Executes SQL statements on a Databricks warehouse and returns the results.
 
 **Returns:** JSON object containing columns and rows from the query result
 
-## Installation
-
-You can download the latest release for your platform from the [Releases](https://github.com/yourusername/databricks-mcp-server/releases) page.
-
-### Supported Platforms
+## Supported Platforms
 
 - Linux (amd64)
 - Windows (amd64)
@@ -85,4 +100,3 @@ The server will start and listen for MCP protocol commands on standard input/out
 ### Prerequisites
 
 - Go 1.24 or later
-- Databricks account for testing

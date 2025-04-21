@@ -275,16 +275,6 @@ jobs:
           chmod +x npm/databricks-mcp-server-linux-amd64/bin/databricks-mcp-server
           chmod +x npm/databricks-mcp-server-windows-amd64/bin/databricks-mcp-server.exe
 
-          # Copy index.js to each platform-specific package and make it executable
-          cp npm/bin/index.js npm/databricks-mcp-server-darwin-amd64/bin/
-          cp npm/bin/index.js npm/databricks-mcp-server-darwin-arm64/bin/
-          cp npm/bin/index.js npm/databricks-mcp-server-linux-amd64/bin/
-          cp npm/bin/index.js npm/databricks-mcp-server-windows-amd64/bin/
-          chmod +x npm/databricks-mcp-server-darwin-amd64/bin/index.js
-          chmod +x npm/databricks-mcp-server-darwin-arm64/bin/index.js
-          chmod +x npm/databricks-mcp-server-linux-amd64/bin/index.js
-          chmod +x npm/databricks-mcp-server-windows-amd64/bin/index.js
-
           # Create package.json and publish for each platform-specific package
           for dir in npm/databricks-mcp-server-*; do
             if [ -d "$dir" ]; then
