@@ -269,6 +269,16 @@ jobs:
           cp artifacts/databricks-mcp-linux-amd64/databricks-mcp npm/databricks-mcp-server-linux-amd64/bin/
           cp artifacts/databricks-mcp-windows-amd64.exe/databricks-mcp.exe npm/databricks-mcp-server-windows-amd64/bin/
 
+          # Copy index.js to each platform-specific package and make it executable
+          cp npm/bin/index.js npm/databricks-mcp-server-darwin-amd64/bin/
+          cp npm/bin/index.js npm/databricks-mcp-server-darwin-arm64/bin/
+          cp npm/bin/index.js npm/databricks-mcp-server-linux-amd64/bin/
+          cp npm/bin/index.js npm/databricks-mcp-server-windows-amd64/bin/
+          chmod +x npm/databricks-mcp-server-darwin-amd64/bin/index.js
+          chmod +x npm/databricks-mcp-server-darwin-arm64/bin/index.js
+          chmod +x npm/databricks-mcp-server-linux-amd64/bin/index.js
+          chmod +x npm/databricks-mcp-server-windows-amd64/bin/index.js
+
           # Create package.json and publish for each platform-specific package
           for dir in npm/databricks-mcp-server-*; do
             if [ -d "$dir" ]; then
@@ -287,6 +297,10 @@ jobs:
                 "name": "'$pkg_name'",
                 "version": "'$VERSION'",
                 "description": "Platform-specific binary for databricks-mcp-server",
+                "main": "bin/index.js",
+                "bin": {
+                  "databricks-mcp-server": "bin/index.js"
+                },
                 "repository": {
                   "type": "git",
                   "url": "git+https://github.com/characat0/databricks-mcp-server.git"
