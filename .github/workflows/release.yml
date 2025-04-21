@@ -19,26 +19,26 @@ jobs:
             os: ubuntu-latest
             GOOS: linux
             GOARCH: amd64
-            binary_name: databricks-mcp
-            asset_name: databricks-mcp-linux-amd64
+            binary_name: databricks-mcp-server
+            asset_name: databricks-mcp-server-linux-amd64
           - platform: windows-amd64
             os: ubuntu-latest
             GOOS: windows
             GOARCH: amd64
-            binary_name: databricks-mcp.exe
-            asset_name: databricks-mcp-windows-amd64.exe
+            binary_name: databricks-mcp-server.exe
+            asset_name: databricks-mcp-server-windows-amd64.exe
           - platform: darwin-amd64
             os: ubuntu-latest
             GOOS: darwin
             GOARCH: amd64
-            binary_name: databricks-mcp
-            asset_name: databricks-mcp-darwin-amd64
+            binary_name: databricks-mcp-server
+            asset_name: databricks-mcp-server-darwin-amd64
           - platform: darwin-arm64
             os: ubuntu-latest
             GOOS: darwin
             GOARCH: arm64
-            binary_name: databricks-mcp
-            asset_name: databricks-mcp-darwin-arm64
+            binary_name: databricks-mcp-server
+            asset_name: databricks-mcp-server-darwin-arm64
 
     steps:
     - name: Checkout code
@@ -162,7 +162,7 @@ jobs:
           tag_name: ${{ github.ref_name }}
           release_name: Release ${{ github.ref_name }}
           body: |
-            # Release ${{ github.ref_name }} of databricks-mcp
+            # Release ${{ github.ref_name }} of databricks-mcp-server
 
             ## Changelog
             ${{ env.CHANGELOG }}
@@ -183,17 +183,17 @@ jobs:
     strategy:
       matrix:
         asset:
-          - name: databricks-mcp-linux-amd64
-            path: artifacts/databricks-mcp-linux-amd64/databricks-mcp
+          - name: databricks-mcp-server-linux-amd64
+            path: artifacts/databricks-mcp-server-linux-amd64/databricks-mcp-server
             content_type: application/octet-stream
-          - name: databricks-mcp-windows-amd64.exe
-            path: artifacts/databricks-mcp-windows-amd64.exe/databricks-mcp.exe
+          - name: databricks-mcp-server-windows-amd64.exe
+            path: artifacts/databricks-mcp-server-windows-amd64.exe/databricks-mcp-server.exe
             content_type: application/octet-stream
-          - name: databricks-mcp-darwin-amd64
-            path: artifacts/databricks-mcp-darwin-amd64/databricks-mcp
+          - name: databricks-mcp-server-darwin-amd64
+            path: artifacts/databricks-mcp-server-darwin-amd64/databricks-mcp-server
             content_type: application/octet-stream
-          - name: databricks-mcp-darwin-arm64
-            path: artifacts/databricks-mcp-darwin-arm64/databricks-mcp
+          - name: databricks-mcp-server-darwin-arm64
+            path: artifacts/databricks-mcp-server-darwin-arm64/databricks-mcp-server
             content_type: application/octet-stream
     steps:
       - name: Download all artifacts
@@ -264,10 +264,10 @@ jobs:
           mkdir -p npm/databricks-mcp-server-windows-amd64/bin
 
           # Copy binaries to their respective npm package directories
-          cp artifacts/databricks-mcp-darwin-amd64/databricks-mcp npm/databricks-mcp-server-darwin-amd64/bin/
-          cp artifacts/databricks-mcp-darwin-arm64/databricks-mcp npm/databricks-mcp-server-darwin-arm64/bin/
-          cp artifacts/databricks-mcp-linux-amd64/databricks-mcp npm/databricks-mcp-server-linux-amd64/bin/
-          cp artifacts/databricks-mcp-windows-amd64.exe/databricks-mcp.exe npm/databricks-mcp-server-windows-amd64/bin/
+          cp artifacts/databricks-mcp-server-darwin-amd64/databricks-mcp-server npm/databricks-mcp-server-darwin-amd64/bin/
+          cp artifacts/databricks-mcp-server-darwin-arm64/databricks-mcp-server npm/databricks-mcp-server-darwin-arm64/bin/
+          cp artifacts/databricks-mcp-server-linux-amd64/databricks-mcp-server npm/databricks-mcp-server-linux-amd64/bin/
+          cp artifacts/databricks-mcp-server-windows-amd64.exe/databricks-mcp-server.exe npm/databricks-mcp-server-windows-amd64/bin/
 
           # Copy index.js to each platform-specific package and make it executable
           cp npm/bin/index.js npm/databricks-mcp-server-darwin-amd64/bin/
@@ -297,15 +297,6 @@ jobs:
                 "name": "'$pkg_name'",
                 "version": "'$VERSION'",
                 "description": "Platform-specific binary for databricks-mcp-server",
-                "main": "bin/index.js",
-                "bin": {
-                  "databricks-mcp-server": "bin/index.js"
-                },
-                "repository": {
-                  "type": "git",
-                  "url": "git+https://github.com/characat0/databricks-mcp-server.git"
-                },
-                "license": "MIT",
                 "os": ["'$os_name'"],
                 "cpu": ["'$cpu_arch'"]
               }' > "$dir/package.json"

@@ -2,7 +2,7 @@
     "name": "databricks-mcp-server",
     "version": "0.0.0",
     "description": "Model Context Protocol (MCP) server for interacting with Databricks",
-    "main": "./index.js",
+    "main": "bin/index.js",
     "bin": {
         "databricks-mcp-server": "bin/index.js"
     },
