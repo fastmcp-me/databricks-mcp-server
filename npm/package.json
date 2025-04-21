@@ -1,0 +1,35 @@
+{
+    "name": "databricks-mcp-server",
+    "version": "0.0.0",
+    "description": "Model Context Protocol (MCP) server for interacting with Databricks",
+    "main": "./index.js",
+    "bin": {
+        "databricks-mcp-server": "bin/index.js"
+    },
+    "optionalDependencies": {
+        "databricks-mcp-server-darwin-amd64": "0.0.0",
+        "databricks-mcp-server-darwin-arm64": "0.0.0",
+        "databricks-mcp-server-linux-amd64": "0.0.0",
+        "databricks-mcp-server-linux-arm64": "0.0.0",
+        "databricks-mcp-server-windows-amd64": "0.0.0",
+        "databricks-mcp-server-windows-arm64": "0.0.0"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/characat0/databricks-mcp-server.git"
+    },
+    "keywords": [
+        "mcp",
+        "databricks",
+        "model context protocol"
+    ],
+    "author": {
+        "name": "Marco Vela",
+        "url": "https://www.marcovela.com"
+    },
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/characat0/databricks-mcp-server/issues"
+    },
+    "homepage": "https://github.com/characat0/databricks-mcp-server#readme"
+}
