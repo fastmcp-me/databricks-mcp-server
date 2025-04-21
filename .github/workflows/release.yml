@@ -292,6 +292,15 @@ jobs:
                 cpu_arch="x64"
               fi
 
+              # Extract only the OS part and convert windows to win32
+              if [[ "$os_name" == windows* ]]; then
+                os_name="win32"
+              elif [[ "$os_name" == darwin* ]]; then
+                os_name="darwin"
+              elif [[ "$os_name" == linux* ]]; then
+                os_name="linux"
+              fi
+
               # Create package.json file
               echo '{
                 "name": "'$pkg_name'",
