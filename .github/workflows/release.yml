@@ -95,6 +95,7 @@ jobs:
         path: ${{ matrix.binary_name }}
 
   release:
+    permissions: write-all
     name: Create Release
     needs: build
     runs-on: ubuntu-latest
