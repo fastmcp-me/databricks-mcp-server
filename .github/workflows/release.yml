@@ -269,6 +269,12 @@ jobs:
           cp artifacts/databricks-mcp-server-linux-amd64/databricks-mcp-server npm/databricks-mcp-server-linux-amd64/bin/
           cp artifacts/databricks-mcp-server-windows-amd64.exe/databricks-mcp-server.exe npm/databricks-mcp-server-windows-amd64/bin/
 
+          # Make binaries executable
+          chmod +x npm/databricks-mcp-server-darwin-amd64/bin/databricks-mcp-server
+          chmod +x npm/databricks-mcp-server-darwin-arm64/bin/databricks-mcp-server
+          chmod +x npm/databricks-mcp-server-linux-amd64/bin/databricks-mcp-server
+          chmod +x npm/databricks-mcp-server-windows-amd64/bin/databricks-mcp-server.exe
+
           # Copy index.js to each platform-specific package and make it executable
           cp npm/bin/index.js npm/databricks-mcp-server-darwin-amd64/bin/
           cp npm/bin/index.js npm/databricks-mcp-server-darwin-arm64/bin/
