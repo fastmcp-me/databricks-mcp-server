@@ -2,11 +2,9 @@ name: Build and Release
 
 on:
   push:
-    branches: [ main ]
     tags:
-      - 'v*'
-  pull_request:
-    branches: [ main ]
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+    # This ensures the workflow only runs on tags matching the pattern vX.Y.Z
 
 jobs:
   build:
@@ -99,8 +97,9 @@ jobs:
   release:
     name: Create Release
     needs: build
-    if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
+    outputs:
+      upload_url: ${{ steps.release_outputs.outputs.upload_url }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -169,42 +168,138 @@ jobs:
           draft: false
           prerelease: false
 
-      - name: Upload Linux AMD64 Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: artifacts/databricks-mcp-linux-amd64/databricks-mcp
-          asset_name: databricks-mcp-linux-amd64
-          asset_content_type: application/octet-stream
+      # The release ID is needed for the upload-assets job
+      - name: Set release outputs
+        id: release_outputs
+        run: |
+          echo "release_id=${{ steps.create_release.outputs.id }}" >> $GITHUB_OUTPUT
+          echo "upload_url=${{ steps.create_release.outputs.upload_url }}" >> $GITHUB_OUTPUT
 
-      - name: Upload Windows AMD64 Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  upload-assets:
+    name: Upload Release Assets
+    needs: release
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        asset:
+          - name: databricks-mcp-linux-amd64
+            path: artifacts/databricks-mcp-linux-amd64/databricks-mcp
+            content_type: application/octet-stream
+          - name: databricks-mcp-windows-amd64.exe
+            path: artifacts/databricks-mcp-windows-amd64.exe/databricks-mcp.exe
+            content_type: application/octet-stream
+          - name: databricks-mcp-darwin-amd64
+            path: artifacts/databricks-mcp-darwin-amd64/databricks-mcp
+            content_type: application/octet-stream
+          - name: databricks-mcp-darwin-arm64
+            path: artifacts/databricks-mcp-darwin-arm64/databricks-mcp
+            content_type: application/octet-stream
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: artifacts/databricks-mcp-windows-amd64.exe/databricks-mcp.exe
-          asset_name: databricks-mcp-windows-amd64.exe
-          asset_content_type: application/octet-stream
+          path: artifacts
 
-      - name: Upload Darwin AMD64 Asset
+      - name: Upload Release Asset
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: artifacts/databricks-mcp-darwin-amd64/databricks-mcp
-          asset_name: databricks-mcp-darwin-amd64
-          asset_content_type: application/octet-stream
+          upload_url: ${{ needs.release.outputs.upload_url }}
+          asset_path: ${{ matrix.asset.path }}
+          asset_name: ${{ matrix.asset.name }}
+          asset_content_type: ${{ matrix.asset.content_type }}
 
-      - name: Upload Darwin ARM64 Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  publish-npm:
+    name: Publish NPM Packages
+    needs: [release, upload-assets]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: artifacts/databricks-mcp-darwin-arm64/databricks-mcp
-          asset_name: databricks-mcp-darwin-arm64
-          asset_content_type: application/octet-stream
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org/'
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Get version from tag
+        id: get_version
+        run: |
+          # Remove 'v' prefix from tag name
+          VERSION=${GITHUB_REF#refs/tags/v}
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Prepare main npm package
+        run: |
+          # Update main package version and dependencies
+          jq ".version = \"${VERSION}\"" npm/package.json > tmp.json && mv tmp.json npm/package.json
+          jq ".optionalDependencies |= with_entries(.value = \"${VERSION}\")" npm/package.json > tmp.json && mv tmp.json npm/package.json
+
+          # Copy README and LICENSE to main package
+          cp README.md LICENSE npm/
+
+      - name: Publish main package
+        run: |
+          cd npm
+          npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Prepare and publish platform-specific packages
+        run: |
+          # Create directories for platform-specific packages
+          mkdir -p npm/databricks-mcp-server-darwin-amd64/bin
+          mkdir -p npm/databricks-mcp-server-darwin-arm64/bin
+          mkdir -p npm/databricks-mcp-server-linux-amd64/bin
+          mkdir -p npm/databricks-mcp-server-windows-amd64/bin
+
+          # Copy binaries to their respective npm package directories
+          cp artifacts/databricks-mcp-darwin-amd64/databricks-mcp npm/databricks-mcp-server-darwin-amd64/bin/
+          cp artifacts/databricks-mcp-darwin-arm64/databricks-mcp npm/databricks-mcp-server-darwin-arm64/bin/
+          cp artifacts/databricks-mcp-linux-amd64/databricks-mcp npm/databricks-mcp-server-linux-amd64/bin/
+          cp artifacts/databricks-mcp-windows-amd64.exe/databricks-mcp.exe npm/databricks-mcp-server-windows-amd64/bin/
+
+          # Create package.json and publish for each platform-specific package
+          for dir in npm/databricks-mcp-server-*; do
+            if [ -d "$dir" ]; then
+              pkg_name=$(basename "$dir")
+              os_name=${pkg_name#databricks-mcp-server-}
+
+              # Extract CPU architecture from package name
+              if [[ "$os_name" == *"arm64"* ]]; then
+                cpu_arch="arm64"
+              else
+                cpu_arch="x64"
+              fi
+
+              # Create package.json file
+              echo '{
+                "name": "'$pkg_name'",
+                "version": "'$VERSION'",
+                "description": "Platform-specific binary for databricks-mcp-server",
+                "repository": {
+                  "type": "git",
+                  "url": "git+https://github.com/characat0/databricks-mcp-server.git"
+                },
+                "license": "MIT",
+                "os": ["'$os_name'"],
+                "cpu": ["'$cpu_arch'"]
+              }' > "$dir/package.json"
+
+              # Publish the platform-specific package
+              cd "$dir"
+              npm publish --access public
+              cd ../..
+            fi
+          done
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
