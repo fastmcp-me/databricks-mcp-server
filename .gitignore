@@ -5,6 +5,7 @@
 *.so
 *.dylib
 databricks-mcp
+databricks-mcp-server
 
 # Test binary, built with `go test -c`
 *.test
