@@ -8,7 +8,7 @@ You can download the latest release for your platform from the [Releases](https:
 
 ### VS Code
 
-Install the Databricks MCP server extension in VS Code Insiders by pressing the following link:
+Install the Databricks MCP Server extension in VS Code by pressing the following link:
 
 [<img src="https://img.shields.io/badge/VS_Code-VS_Code?style=flat-square&label=Install%20Server&color=0098FF" alt="Install in VS Code">](https://vscode.dev/redirect?url=vscode%3Amcp%2Finstall%3F%257B%2522name%2522%253A%2522databricks%2522%252C%2522command%2522%253A%2522npx%2522%252C%2522args%2522%253A%255B%2522-y%2522%252C%2522databricks-mcp-server%2540latest%2522%255D%257D)
 
@@ -61,7 +61,7 @@ Lists all tables in a specified Databricks schema with optional filtering.
 
 ### Execute SQL
 
-Executes SQL statements on a Databricks warehouse and returns the results.
+Executes SQL statements on a Databricks SQL warehouse and returns the results.
 
 **Tool name:** `execute_sql`
 
@@ -70,7 +70,8 @@ Executes SQL statements on a Databricks warehouse and returns the results.
 - `timeout_seconds` (number, optional, default: 60): Timeout in seconds for the statement execution
 - `row_limit` (number, optional, default: 100): Maximum number of rows to return in the result
 
-**Returns:** JSON object containing columns and rows from the query result
+**Returns:** JSON object containing columns and rows from the query result, with information of the 
+SQL warehouse used to execute the statement.
 
 ## Supported Platforms
 
