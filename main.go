@@ -5,7 +5,7 @@ import (
 	"log"
 	"os"
 
-	"databricks-mcp/tools"
+	"databricks-mcp-server/tools"
 	"github.com/databricks/databricks-sdk-go"
 	"github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
@@ -53,6 +53,10 @@ func main() {
 		mcp.WithNumber("max_wait_timeout", mcp.Description("Timeout in seconds for the statement execution"), mcp.DefaultNumber(60)),
 		mcp.WithNumber("row_limit", mcp.Description("Maximum number of rows to return in the result"), mcp.DefaultNumber(100)),
 	), tools.ExecuteSQL(w))
+
+	s.AddTool(mcp.NewTool("list_warehouses",
+		mcp.WithDescription("Lists all SQL warehouses available in the Databricks workspace"),
+	), tools.ListWarehouses(w))
 
 	// Start the stdio server
 	logger := log.New(os.Stdout, "INFO: ", log.LstdFlags)

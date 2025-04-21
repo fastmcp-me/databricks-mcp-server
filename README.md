@@ -73,6 +73,16 @@ Executes SQL statements on a Databricks SQL warehouse and returns the results.
 **Returns:** JSON object containing columns and rows from the query result, with information of the 
 SQL warehouse used to execute the statement.
 
+### List SQL Warehouses
+
+Lists all SQL warehouses available in the Databricks workspace.
+
+**Tool name:** `list_warehouses`
+
+**Parameters:** None
+
+**Returns:** JSON array of SQL warehouse objects
+
 ## Supported Platforms
 
 - Linux (amd64)
