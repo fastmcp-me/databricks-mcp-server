@@ -124,9 +124,6 @@ func ExecuteSQL(w *databricks.WorkspaceClient) server.ToolHandlerFunc {
 		response, err := json.Marshal(map[string]interface{}{
 			"columns": res.Manifest.Schema.Columns,
 			"rows":    resultDataArray,
-			"metadata": map[string]interface{}{
-				"warehouse": warehouses[0],
-			},
 		})
 		if err != nil {
 			return mcp.NewToolResultErrorFromErr("Error marshalling statement result into JSON", err), nil
