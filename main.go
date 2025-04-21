@@ -5,7 +5,7 @@ import (
 	"log"
 	"os"
 
-	"databricks-mcp/tools"
+	"databricks-mcp-server/tools"
 	"github.com/databricks/databricks-sdk-go"
 	"github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
