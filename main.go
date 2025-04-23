@@ -45,6 +45,8 @@ func main() {
 		mcp.WithString("catalog", mcp.Description("Name of the catalog containing the schema"), mcp.Required()),
 		mcp.WithString("schema", mcp.Description("Name of the schema to list tables from"), mcp.Required()),
 		mcp.WithString("filter_pattern", mcp.Description("Regular expression pattern to filter table names"), mcp.DefaultString(".*")),
+		mcp.WithBoolean("omit_properties", mcp.Description("Whether to omit table properties in the response (true/false)"), mcp.DefaultBool(false)),
+		mcp.WithBoolean("omit_columns", mcp.Description("Whether to omit column details in the response (true/false)"), mcp.DefaultBool(false)),
 	), tools.ListTables(w))
 
 	s.AddTool(mcp.NewTool("execute_sql",

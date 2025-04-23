@@ -29,6 +29,7 @@ func filterTables(tables []catalog.TableInfo, pattern string) ([]catalog.TableIn
 
 // ListTables retrieves all tables in the specified catalog and schema,
 // optionally filtering them by a regex pattern, and returns them as a JSON string.
+// It also supports omitting table properties and column details from the response.
 func ListTables(w *databricks.WorkspaceClient) server.ToolHandlerFunc {
 	return func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 		arguments := request.Params.Arguments
@@ -38,10 +39,16 @@ func ListTables(w *databricks.WorkspaceClient) server.ToolHandlerFunc {
 		// Get the filter pattern, which defaults to ".*" in main.go
 		filterPattern, _ := arguments["filter_pattern"].(string)
 
+		// Get the omit_properties and omit_columns parameters, which default to "false" in main.go
+		omitProperties, _ := arguments["omit_properties"].(bool)
+		omitColumns, _ := arguments["omit_columns"].(bool)
+
 		// Retrieve all tables from the specified catalog and schema
 		tables, err := w.Tables.ListAll(ctx, catalog.ListTablesRequest{
-			CatalogName: catalogName,
-			SchemaName:  schemaName,
+			CatalogName:    catalogName,
+			SchemaName:     schemaName,
+			OmitProperties: omitProperties,
+			OmitColumns:    omitColumns,
 		})
 		if err != nil {
 			return mcp.NewToolResultErrorFromErr("Error listing tables", err), nil
