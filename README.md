@@ -4,7 +4,7 @@ A Model Context Protocol (MCP) server for interacting with Databricks.
 
 ## Installation
 
-You can download the latest release for your platform from the [Releases](https://github.com/yourusername/databricks-mcp-server/releases) page.
+You can download the latest release for your platform from the [Releases](https://github.com/characat0/databricks-mcp-server/releases) page.
 
 ### VS Code
 
