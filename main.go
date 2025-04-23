@@ -45,9 +45,15 @@ func main() {
 		mcp.WithString("catalog", mcp.Description("Name of the catalog containing the schema"), mcp.Required()),
 		mcp.WithString("schema", mcp.Description("Name of the schema to list tables from"), mcp.Required()),
 		mcp.WithString("filter_pattern", mcp.Description("Regular expression pattern to filter table names"), mcp.DefaultString(".*")),
-		mcp.WithBoolean("omit_properties", mcp.Description("Whether to omit table properties in the response (true/false)"), mcp.DefaultBool(false)),
-		mcp.WithBoolean("omit_columns", mcp.Description("Whether to omit column details in the response (true/false)"), mcp.DefaultBool(false)),
+		mcp.WithBoolean("omit_properties", mcp.Description("Whether to omit table properties in the response (true/FALSE)"), mcp.DefaultBool(false)),
+		mcp.WithBoolean("omit_columns", mcp.Description("Whether to omit column details in the response (true/FALSE)"), mcp.DefaultBool(false)),
+		mcp.WithNumber("max_results", mcp.Description("Maximum number of tables to return (0 for all)"), mcp.DefaultNumber(10)),
 	), tools.ListTables(w))
+
+	s.AddTool(mcp.NewTool("get_table",
+		mcp.WithDescription("Gets information about a single table using its full name"),
+		mcp.WithString("full_name", mcp.Description("Full name of the table in format 'catalog.schema.table'"), mcp.Required()),
+	), tools.GetTable(w))
 
 	s.AddTool(mcp.NewTool("execute_sql",
 		mcp.WithDescription("Executes SQL statements on a Databricks warehouse and returns the results"),

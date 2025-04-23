@@ -3,6 +3,7 @@ package tools
 import (
 	"context"
 	"encoding/json"
+	"github.com/databricks/databricks-sdk-go/listing"
 	"github.com/mark3labs/mcp-go/server"
 	"regexp"
 
@@ -30,6 +31,7 @@ func filterTables(tables []catalog.TableInfo, pattern string) ([]catalog.TableIn
 // ListTables retrieves all tables in the specified catalog and schema,
 // optionally filtering them by a regex pattern, and returns them as a JSON string.
 // It also supports omitting table properties and column details from the response.
+// The max_results parameter limits the number of tables returned (0 for all).
 func ListTables(w *databricks.WorkspaceClient) server.ToolHandlerFunc {
 	return func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 		arguments := request.Params.Arguments
@@ -40,18 +42,39 @@ func ListTables(w *databricks.WorkspaceClient) server.ToolHandlerFunc {
 		filterPattern, _ := arguments["filter_pattern"].(string)
 
 		// Get the omit_properties and omit_columns parameters, which default to "false" in main.go
-		omitProperties, _ := arguments["omit_properties"].(bool)
-		omitColumns, _ := arguments["omit_columns"].(bool)
+		omitProperties, ok := arguments["omit_properties"].(bool)
+		if !ok {
+			omitProperties = false
+		}
+		omitColumns, ok := arguments["omit_columns"].(bool)
+		if !ok {
+			omitColumns = false
+		}
+
+		// Get the max_results parameter, which defaults to 10 in main.go
+		maxResults, ok := arguments["max_results"].(int)
+		if !ok {
+			maxResults = 10
+		}
 
 		// Retrieve all tables from the specified catalog and schema
-		tables, err := w.Tables.ListAll(ctx, catalog.ListTablesRequest{
+		tablesIt := w.Tables.List(ctx, catalog.ListTablesRequest{
 			CatalogName:    catalogName,
 			SchemaName:     schemaName,
 			OmitProperties: omitProperties,
 			OmitColumns:    omitColumns,
+			MaxResults:     maxResults + 1,
 		})
+		tables, err := listing.ToSliceN(ctx, tablesIt, maxResults)
+
 		if err != nil {
 			return mcp.NewToolResultErrorFromErr("Error listing tables", err), nil
+		}
+
+		var truncated = false
+		if len(tables) > maxResults {
+			tables = tables[:maxResults]
+			truncated = true
 		}
 
 		// Apply filter if pattern is not ".*" (match everything)
@@ -62,8 +85,12 @@ func ListTables(w *databricks.WorkspaceClient) server.ToolHandlerFunc {
 			}
 		}
 
-		// Marshal the tables to JSON
-		res, err := json.Marshal(tables)
+		// Marshal the response to JSON
+		res, err := json.Marshal(map[string]interface{}{
+			"tables":      tables,
+			"total_count": len(tables),
+			"truncated":   truncated,
+		})
 		if err != nil {
 			return mcp.NewToolResultErrorFromErr("Error marshalling tables into JSON", err), nil
 		}
