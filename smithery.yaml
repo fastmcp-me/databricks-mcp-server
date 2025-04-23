@@ -1,10 +1,12 @@
 startCommand:
-type: stdio
-configSchema:
-  {}
-commandFunction:
-  |-
-  (config) => ({
-    "command": "./databricks-mcp-server",
-    "env": {}
-  })
+  type: stdio
+  build:
+    dockerfile: ./Dockerfile
+    dockerBuildPath: .
+  configSchema:
+    {}
+  commandFunction: |
+    (config) => ({
+      "command": "./databricks-mcp-server",
+      "env": {}
+    })
