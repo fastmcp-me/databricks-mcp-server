@@ -1,0 +1,10 @@
+startCommand:
+type: stdio
+configSchema:
+  {}
+commandFunction:
+  |-
+  (config) => ({
+    "command": "./databricks-mcp-server",
+    "env": {}
+  })
