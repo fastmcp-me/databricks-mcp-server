@@ -2,14 +2,12 @@ package tools
 
 import (
 	"context"
-	"encoding/json"
-	"github.com/databricks/databricks-sdk-go/listing"
-	"github.com/mark3labs/mcp-go/server"
 	"regexp"
 
-	"github.com/databricks/databricks-sdk-go"
+	"github.com/databricks/databricks-sdk-go/listing"
 	"github.com/databricks/databricks-sdk-go/service/catalog"
 	"github.com/mark3labs/mcp-go/mcp"
+	"github.com/mark3labs/mcp-go/server"
 )
 
 // filterTables filters a list of tables based on a regex pattern applied to table names.
@@ -32,29 +30,19 @@ func filterTables(tables []catalog.TableInfo, pattern string) ([]catalog.TableIn
 // optionally filtering them by a regex pattern, and returns them as a JSON string.
 // It also supports omitting table properties and column details from the response.
 // The max_results parameter limits the number of tables returned (0 for all).
-func ListTables(w *databricks.WorkspaceClient) server.ToolHandlerFunc {
-	return func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-		arguments := request.Params.Arguments
-		catalogName := arguments["catalog"].(string)
-		schemaName := arguments["schema"].(string)
-
-		// Get the table name pattern, which defaults to ".*" in main.go
-		tableNamePattern, _ := arguments["table_name_pattern"].(string)
-
-		omitProperties, ok := arguments["omit_properties"].(bool)
-		if !ok {
-			omitProperties = true
-		}
-		omitColumns, ok := arguments["omit_columns"].(bool)
-		if !ok {
-			omitColumns = false
+func ListTables() server.ToolHandlerFunc {
+	return ExecuteOperation(func(ctx context.Context, request mcp.CallToolRequest) (interface{}, error) {
+		w, err := WorkspaceClientFromContext(ctx)
+		if err != nil {
+			return nil, err
 		}
 
-		// Get the max_results parameter, which defaults to 10 in main.go
-		maxResults, ok := arguments["max_results"].(int)
-		if !ok {
-			maxResults = 10
-		}
+		catalogName := ExtractStringParam(request, "catalog", "")
+		schemaName := ExtractStringParam(request, "schema", "")
+		tableNamePattern := ExtractStringParam(request, "table_name_pattern", ".*")
+		omitProperties := ExtractBoolParam(request, "omit_properties", true)
+		omitColumns := ExtractBoolParam(request, "omit_columns", false)
+		maxResults := ExtractIntParam(request, "max_results", 10)
 
 		// Retrieve all tables from the specified catalog and schema
 		tablesIt := w.Tables.List(ctx, catalog.ListTablesRequest{
@@ -64,10 +52,9 @@ func ListTables(w *databricks.WorkspaceClient) server.ToolHandlerFunc {
 			OmitColumns:    omitColumns,
 			MaxResults:     maxResults + 1,
 		})
-		tables, err := listing.ToSliceN(ctx, tablesIt, maxResults)
-
+		tables, err := listing.ToSliceN[catalog.TableInfo](ctx, tablesIt, maxResults)
 		if err != nil {
-			return mcp.NewToolResultErrorFromErr("Error listing tables", err), nil
+			return nil, err
 		}
 
 		var truncated = false
@@ -80,20 +67,15 @@ func ListTables(w *databricks.WorkspaceClient) server.ToolHandlerFunc {
 		if tableNamePattern != "" && tableNamePattern != ".*" {
 			tables, err = filterTables(tables, tableNamePattern)
 			if err != nil {
-				return mcp.NewToolResultErrorFromErr("Error filtering tables using pattern", err), nil
+				return nil, err
 			}
 		}
 
-		// Marshal the response to JSON
-		res, err := json.Marshal(map[string]interface{}{
+		// Return a structured response
+		return map[string]interface{}{
 			"tables":      tables,
 			"total_count": len(tables),
 			"truncated":   truncated,
-		})
-		if err != nil {
-			return mcp.NewToolResultErrorFromErr("Error marshalling tables into JSON", err), nil
-		}
-
-		return mcp.NewToolResultText(string(res)), nil
-	}
+		}, nil
+	})
 }
