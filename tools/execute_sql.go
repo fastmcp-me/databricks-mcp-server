@@ -18,16 +18,16 @@ func ExecuteSQL(w *databricks.WorkspaceClient) server.ToolHandlerFunc {
 	return func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 		mcpServer := server.ServerFromContext(ctx)
 		arguments := request.Params.Arguments
-		statement := arguments["statement"].(string)
-		timeoutSeconds, ok := arguments["max_wait_timeout"].(float64)
+		sqlStatement := arguments["statement"].(string)
+		timeoutSeconds, ok := arguments["execution_timeout_seconds"].(float64)
 		if !ok {
 			timeoutSeconds = 60
 		}
 
-		// Get the row limit parameter, default to 100 if not provided
-		rowLimit, ok := arguments["row_limit"].(float64)
+		// Get the max rows parameter, default to 100 if not provided
+		maxRows, ok := arguments["max_rows"].(float64)
 		if !ok {
-			rowLimit = 100
+			maxRows = 100
 		}
 
 		// Poll every 10 seconds
@@ -50,8 +50,8 @@ func ExecuteSQL(w *databricks.WorkspaceClient) server.ToolHandlerFunc {
 
 		// Execute the SQL statement with the specified row limit
 		res, err := w.StatementExecution.ExecuteStatement(ctx, sql.ExecuteStatementRequest{
-			RowLimit:    int64(rowLimit),
-			Statement:   statement,
+			RowLimit:    int64(maxRows),
+			Statement:   sqlStatement,
 			WaitTimeout: "5s",
 			WarehouseId: warehouses[0].Id,
 		})

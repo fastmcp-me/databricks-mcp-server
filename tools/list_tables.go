@@ -38,13 +38,12 @@ func ListTables(w *databricks.WorkspaceClient) server.ToolHandlerFunc {
 		catalogName := arguments["catalog"].(string)
 		schemaName := arguments["schema"].(string)
 
-		// Get the filter pattern, which defaults to ".*" in main.go
-		filterPattern, _ := arguments["filter_pattern"].(string)
+		// Get the table name pattern, which defaults to ".*" in main.go
+		tableNamePattern, _ := arguments["table_name_pattern"].(string)
 
-		// Get the omit_properties and omit_columns parameters, which default to "false" in main.go
 		omitProperties, ok := arguments["omit_properties"].(bool)
 		if !ok {
-			omitProperties = false
+			omitProperties = true
 		}
 		omitColumns, ok := arguments["omit_columns"].(bool)
 		if !ok {
@@ -78,8 +77,8 @@ func ListTables(w *databricks.WorkspaceClient) server.ToolHandlerFunc {
 		}
 
 		// Apply filter if pattern is not ".*" (match everything)
-		if filterPattern != "" && filterPattern != ".*" {
-			tables, err = filterTables(tables, filterPattern)
+		if tableNamePattern != "" && tableNamePattern != ".*" {
+			tables, err = filterTables(tables, tableNamePattern)
 			if err != nil {
 				return mcp.NewToolResultErrorFromErr("Error filtering tables using pattern", err), nil
 			}
