@@ -30,15 +30,15 @@ func WorkspaceClientFromContext(ctx context.Context) (*databricks.WorkspaceClien
 	return w, nil
 }
 
-// DatabricksOperation represents a generic operation on Databricks
-type DatabricksOperation func(ctx context.Context, request mcp.CallToolRequest) (interface{}, error)
+// DatabricksTool represents a generic tool on Databricks
+type DatabricksTool func(ctx context.Context, request mcp.CallToolRequest) (interface{}, error)
 
-// ExecuteOperation is a helper function that executes a Databricks operation and handles common error patterns
-func ExecuteOperation(operation DatabricksOperation) server.ToolHandlerFunc {
+// ExecuteTool is a helper function that executes a Databricks tool and handles common error patterns
+func ExecuteTool(tool DatabricksTool) server.ToolHandlerFunc {
 	return func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-		result, err := operation(ctx, request)
+		result, err := tool(ctx, request)
 		if err != nil {
-			return mcp.NewToolResultErrorFromErr("Error executing operation", err), nil
+			return mcp.NewToolResultErrorFromErr("Error executing tool", err), nil
 		}
 
 		// Marshal the result to JSON

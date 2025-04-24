@@ -7,11 +7,11 @@ import (
 
 	"github.com/databricks/databricks-sdk-go/service/sql"
 	"github.com/mark3labs/mcp-go/mcp"
-	"github.com/mark3labs/mcp-go/server"
 )
 
-// executeSQLOperation is the implementation of the SQL execution operation
-func executeSQLOperation(ctx context.Context, request mcp.CallToolRequest) (interface{}, error) {
+// ExecuteSQL executes a SQL statement on a Databricks warehouse and returns the results.
+// It handles statement execution, polling for completion, and fetching result chunks.
+func ExecuteSQL(ctx context.Context, request mcp.CallToolRequest) (interface{}, error) {
 	w, err := WorkspaceClientFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -107,10 +107,4 @@ func executeSQLOperation(ctx context.Context, request mcp.CallToolRequest) (inte
 		"columns": res.Manifest.Schema.Columns,
 		"rows":    resultDataArray,
 	}, nil
-}
-
-// ExecuteSQL executes a SQL statement on a Databricks warehouse and returns the results.
-// It handles statement execution, polling for completion, and fetching result chunks.
-func ExecuteSQL() server.ToolHandlerFunc {
-	return ExecuteOperation(executeSQLOperation)
 }

@@ -33,12 +33,12 @@ func main() {
 	// Add tool handlers for Databricks operations
 	s.AddTool(mcp.NewTool("list_catalogs",
 		mcp.WithDescription("Lists all catalogs available in the Databricks workspace"),
-	), tools.WithWorkspaceClientHandler(w, tools.ListCatalogs()))
+	), tools.WithWorkspaceClientHandler(w, tools.ExecuteTool(tools.ListCatalogs)))
 
 	s.AddTool(mcp.NewTool("list_schemas",
 		mcp.WithDescription("Lists all schemas in a specified Databricks catalog"),
 		mcp.WithString("catalog", mcp.Description("Name of the catalog to list schemas from"), mcp.Required()),
-	), tools.WithWorkspaceClientHandler(w, tools.ListSchemas()))
+	), tools.WithWorkspaceClientHandler(w, tools.ExecuteTool(tools.ListSchemas)))
 
 	s.AddTool(mcp.NewTool("list_tables",
 		mcp.WithDescription("Lists all tables in a specified Databricks schema with optional filtering"),
@@ -48,23 +48,23 @@ func main() {
 		mcp.WithBoolean("omit_properties", mcp.Description("Whether to omit table properties in the response, helps to reduce response size"), mcp.DefaultBool(true)),
 		mcp.WithBoolean("omit_columns", mcp.Description("Whether to omit column details in the response"), mcp.DefaultBool(false)),
 		mcp.WithNumber("max_results", mcp.Description("Maximum number of tables to return (0 for all, non-recommended)"), mcp.DefaultNumber(10)),
-	), tools.WithWorkspaceClientHandler(w, tools.ListTables()))
+	), tools.WithWorkspaceClientHandler(w, tools.ExecuteTool(tools.ListTables)))
 
 	s.AddTool(mcp.NewTool("get_table",
 		mcp.WithDescription("Gets detailed information about a single Databricks table"),
 		mcp.WithString("full_name", mcp.Description("Full name of the table in format 'catalog.schema.table'"), mcp.Required()),
-	), tools.WithWorkspaceClientHandler(w, tools.GetTable()))
+	), tools.WithWorkspaceClientHandler(w, tools.ExecuteTool(tools.GetTable)))
 
 	s.AddTool(mcp.NewTool("execute_sql",
 		mcp.WithDescription("Executes SQL statements on a Databricks warehouse and returns the results"),
 		mcp.WithString("statement", mcp.Description("SQL statement to execute"), mcp.Required()),
 		mcp.WithNumber("execution_timeout_seconds", mcp.Description("Maximum time in seconds to wait for query execution"), mcp.DefaultNumber(60)),
 		mcp.WithNumber("max_rows", mcp.Description("Maximum number of rows to return in the result"), mcp.DefaultNumber(100)),
-	), tools.WithWorkspaceClientHandler(w, tools.ExecuteSQL()))
+	), tools.WithWorkspaceClientHandler(w, tools.ExecuteTool(tools.ExecuteSQL)))
 
 	s.AddTool(mcp.NewTool("list_warehouses",
 		mcp.WithDescription("Lists all SQL warehouses available in the Databricks workspace"),
-	), tools.WithWorkspaceClientHandler(w, tools.ListWarehouses()))
+	), tools.WithWorkspaceClientHandler(w, tools.ExecuteTool(tools.ListWarehouses)))
 
 	// Start the stdio server
 	logger := log.New(os.Stdout, "INFO: ", log.LstdFlags)

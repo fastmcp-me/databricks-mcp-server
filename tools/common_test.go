@@ -21,7 +21,7 @@ type TestResult struct {
 	Error string
 }
 
-// TestOperation is a simplified version of DatabricksOperation for testing
+// TestOperation is a simplified version of DatabricksTool for testing
 type TestOperation func(ctx context.Context, request TestRequest) (interface{}, error)
 
 // NewTestResultText creates a new test result with text content
@@ -48,7 +48,7 @@ func NewTestResultErrorFromErr(message string, err error) *TestResult {
 	}
 }
 
-// ExecuteTestOperation is a simplified version of ExecuteOperation for testing
+// ExecuteTestOperation is a simplified version of ExecuteTool for testing
 func ExecuteTestOperation(operation TestOperation) func(ctx context.Context, request TestRequest) (*TestResult, error) {
 	return func(ctx context.Context, request TestRequest) (*TestResult, error) {
 		result, err := operation(ctx, request)
