@@ -35,4 +35,4 @@ ENTRYPOINT ["/app/databricks-mcp-server"]
 
 # Document that the server listens on stdin/stdout
 LABEL description="Databricks MCP Server - A Model Context Protocol (MCP) server for interacting with Databricks"
-LABEL version="0.0.8"
+LABEL version="0.0.9"
