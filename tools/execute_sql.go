@@ -20,6 +20,7 @@ func ExecuteSQL(ctx context.Context, request mcp.CallToolRequest) (interface{}, 
 	sqlStatement := ExtractStringParam(request, "statement", "")
 	timeoutSeconds := ExtractFloatParam(request, "execution_timeout_seconds", 60)
 	maxRows := ExtractFloatParam(request, "max_rows", 100)
+	warehouseId := ExtractStringParam(request, "warehouse_id", "")
 
 	// Poll every 10 seconds
 	if timeoutSeconds < 5 {
@@ -30,13 +31,17 @@ func ExecuteSQL(ctx context.Context, request mcp.CallToolRequest) (interface{}, 
 	// Poll for statement completion
 	maxAttempts := int(timeoutSeconds / 10)
 
-	// Get available warehouses
-	warehouses, err := w.Warehouses.ListAll(ctx, sql.ListWarehousesRequest{})
-	if err != nil {
-		return nil, fmt.Errorf("error listing warehouses: %w", err)
-	}
-	if len(warehouses) == 0 {
-		return nil, fmt.Errorf("no warehouses available")
+	// Determine which warehouse to use
+	if warehouseId == "" {
+		// Get available warehouses and use the first one
+		warehouses, err := w.Warehouses.ListAll(ctx, sql.ListWarehousesRequest{})
+		if err != nil {
+			return nil, fmt.Errorf("error listing warehouses: %w", err)
+		}
+		if len(warehouses) == 0 {
+			return nil, fmt.Errorf("no warehouses available")
+		}
+		warehouseId = warehouses[0].Id
 	}
 
 	// Execute the SQL statement with the specified row limit
@@ -44,7 +49,7 @@ func ExecuteSQL(ctx context.Context, request mcp.CallToolRequest) (interface{}, 
 		RowLimit:    int64(maxRows),
 		Statement:   sqlStatement,
 		WaitTimeout: "5s",
-		WarehouseId: warehouses[0].Id,
+		WarehouseId: warehouseId,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("error executing SQL statement: %w", err)

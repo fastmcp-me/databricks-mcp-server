@@ -60,6 +60,7 @@ func main() {
 		mcp.WithString("statement", mcp.Description("SQL statement to execute"), mcp.Required()),
 		mcp.WithNumber("execution_timeout_seconds", mcp.Description("Maximum time in seconds to wait for query execution"), mcp.DefaultNumber(60)),
 		mcp.WithNumber("max_rows", mcp.Description("Maximum number of rows to return in the result"), mcp.DefaultNumber(100)),
+		mcp.WithString("warehouse_id", mcp.Description("ID of the warehouse to use for execution. If not specified, the first available warehouse will be used")),
 	), tools.WithWorkspaceClientHandler(w, tools.ExecuteTool(tools.ExecuteSQL)))
 
 	s.AddTool(mcp.NewTool("list_warehouses",
