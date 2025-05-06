@@ -22,10 +22,6 @@ func ExecuteSQL(ctx context.Context, request mcp.CallToolRequest) (interface{}, 
 	maxRows := ExtractFloatParam(request, "max_rows", 100)
 	warehouseId := ExtractStringParam(request, "warehouse_id", "")
 
-	// Poll every 10 seconds
-	if timeoutSeconds < 5 {
-		timeoutSeconds = 0
-	}
 	// Convert timeout to string format for API and calculate a polling interval
 	pollingInterval := 10 * time.Second
 	// Poll for statement completion
@@ -87,7 +83,7 @@ func ExecuteSQL(ctx context.Context, request mcp.CallToolRequest) (interface{}, 
 		_ = w.StatementExecution.CancelExecution(ctx, sql.CancelExecutionRequest{
 			StatementId: res.StatementId,
 		})
-		return nil, fmt.Errorf("error executing the statement, current status %s, canceled execution", res.Status.State)
+		return nil, fmt.Errorf("statement execution timed out after %v seconds, current status %s.\nHint: Try with a higher timeout or simplying the query.", timeoutSeconds, res.Status.State)
 	}
 
 	// Collect all result chunks
