@@ -56,7 +56,17 @@ func main() {
 	), tools.WithWorkspaceClientHandler(w, tools.ExecuteTool(tools.GetTable)))
 
 	s.AddTool(mcp.NewTool("execute_sql",
-		mcp.WithDescription("Executes SQL statements on a Databricks warehouse and returns the results"),
+		mcp.WithDescription(`
+<use_case>
+  Use this tool to execute SQL statements against a Databricks warehouse and retrieve results in JSON format.
+</use_case>
+
+<important_notes>
+  The flavor of SQL supported is based on the Databricks SQL engine, which is similar to Apache Spark SQL.
+  If asked explicitly to use a specific warehouse, you can use the "list_warehouses" tool to get available warehouses.
+  Ensure that the SQL is optimized for performance, especially for large datasets; avoid running statements that do not use partitioning or indexing effectively.
+</important_notes>
+`),
 		mcp.WithString("statement", mcp.Description("SQL statement to execute"), mcp.Required()),
 		mcp.WithNumber("execution_timeout_seconds", mcp.Description("Maximum time in seconds to wait for query execution"), mcp.DefaultNumber(60)),
 		mcp.WithNumber("max_rows", mcp.Description("Maximum number of rows to return in the result"), mcp.DefaultNumber(100)),
@@ -64,7 +74,11 @@ func main() {
 	), tools.WithWorkspaceClientHandler(w, tools.ExecuteTool(tools.ExecuteSQL)))
 
 	s.AddTool(mcp.NewTool("list_warehouses",
-		mcp.WithDescription("Lists all SQL warehouses available in the Databricks workspace"),
+		mcp.WithDescription(`
+<use_case>
+  Use this tool when asked explicitly to use a specific warehouse for SQL execution.
+</use_case>
+`),
 	), tools.WithWorkspaceClientHandler(w, tools.ExecuteTool(tools.ListWarehouses)))
 
 	// Start the stdio server
