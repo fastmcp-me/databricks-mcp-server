@@ -14,7 +14,7 @@ func ListSchemas(ctx context.Context, request mcp.CallToolRequest) (interface{},
 	if err != nil {
 		return nil, err
 	}
-	catalogName := ExtractStringParam(request, "catalog", "")
+	catalogName := request.GetString("catalog", "")
 	return w.Schemas.ListAll(ctx, catalog.ListSchemasRequest{
 		CatalogName: catalogName,
 	})

@@ -15,7 +15,7 @@ func GetTable(ctx context.Context, request mcp.CallToolRequest) (interface{}, er
 		return nil, err
 	}
 
-	fullName := ExtractStringParam(request, "full_name", "")
+	fullName := request.GetString("full_name", "")
 
 	// Note: The Get method doesn't support omitProperties and omitColumns parameters
 	return w.Tables.Get(ctx, catalog.GetTableRequest{

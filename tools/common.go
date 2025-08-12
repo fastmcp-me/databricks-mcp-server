@@ -60,38 +60,6 @@ func WithWorkspaceClientHandler(w *databricks.WorkspaceClient, handler server.To
 	}
 }
 
-// ExtractStringParam extracts a string parameter from the request arguments
-func ExtractStringParam(request mcp.CallToolRequest, paramName string, defaultValue string) string {
-	if val, ok := request.Params.Arguments[paramName].(string); ok {
-		return val
-	}
-	return defaultValue
-}
-
-// ExtractBoolParam extracts a boolean parameter from the request arguments
-func ExtractBoolParam(request mcp.CallToolRequest, paramName string, defaultValue bool) bool {
-	if val, ok := request.Params.Arguments[paramName].(bool); ok {
-		return val
-	}
-	return defaultValue
-}
-
-// ExtractIntParam extracts an integer parameter from the request arguments
-func ExtractIntParam(request mcp.CallToolRequest, paramName string, defaultValue int) int {
-	if val, ok := request.Params.Arguments[paramName].(float64); ok {
-		return int(val)
-	}
-	return defaultValue
-}
-
-// ExtractFloatParam extracts a float parameter from the request arguments
-func ExtractFloatParam(request mcp.CallToolRequest, paramName string, defaultValue float64) float64 {
-	if val, ok := request.Params.Arguments[paramName].(float64); ok {
-		return val
-	}
-	return defaultValue
-}
-
 // SendProgressNotification sends a progress notification to the client
 func SendProgressNotification(ctx context.Context, message string, progress, total int) error {
 	mcpServer := server.ServerFromContext(ctx)

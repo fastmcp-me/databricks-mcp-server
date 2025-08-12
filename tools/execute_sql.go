@@ -17,10 +17,10 @@ func ExecuteSQL(ctx context.Context, request mcp.CallToolRequest) (interface{}, 
 		return nil, err
 	}
 
-	sqlStatement := ExtractStringParam(request, "statement", "")
-	timeoutSeconds := ExtractFloatParam(request, "execution_timeout_seconds", 60)
-	maxRows := ExtractFloatParam(request, "max_rows", 100)
-	warehouseId := ExtractStringParam(request, "warehouse_id", "")
+	sqlStatement := request.GetString("statement", "")
+	timeoutSeconds := request.GetFloat("execution_timeout_seconds", 60)
+	maxRows := request.GetInt("max_rows", 100)
+	warehouseId := request.GetString("warehouse_id", "")
 
 	// Convert timeout to string format for API and calculate a polling interval
 	pollingInterval := 10 * time.Second

@@ -35,12 +35,12 @@ func ListTables(ctx context.Context, request mcp.CallToolRequest) (interface{}, 
 		return nil, err
 	}
 
-	catalogName := ExtractStringParam(request, "catalog", "")
-	schemaName := ExtractStringParam(request, "schema", "")
-	tableNamePattern := ExtractStringParam(request, "table_name_pattern", ".*")
-	omitProperties := ExtractBoolParam(request, "omit_properties", true)
-	omitColumns := ExtractBoolParam(request, "omit_columns", false)
-	maxResults := ExtractIntParam(request, "max_results", 10)
+	catalogName := request.GetString("catalog", "")
+	schemaName := request.GetString("schema", "")
+	tableNamePattern := request.GetString("table_name_pattern", ".*")
+	omitProperties := request.GetBool("omit_properties", true)
+	omitColumns := request.GetBool("omit_columns", false)
+	maxResults := request.GetInt("max_results", 10)
 
 	// Retrieve all tables from the specified catalog and schema
 	tablesIt := w.Tables.List(ctx, catalog.ListTablesRequest{
